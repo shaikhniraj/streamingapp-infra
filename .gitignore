@@ -1,0 +1,35 @@
+# Git ignore file for Terraform and Terragrunt projects
+# Local .terraform directories and cache
+**/.terraform/
+.terraform/
+
+# Terragrunt cache directories
+.terragrunt-cache/
+**/.terragrunt-cache/
+
+# Terragrunt stack generated directories
+.terragrunt-stack/
+
+# Local state files
+*.tfstate
+*.tfstate.*
+*.tfstate.lock.info
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude sensitive variable files (optional, remove if you track non-sensitive tfvars)
+*.tfvars
+*.tfvars.json
+
+# Local override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# CLI configuration
+.terraformrc
+terraform.rc
+```
