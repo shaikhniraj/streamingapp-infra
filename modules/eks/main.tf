@@ -59,14 +59,28 @@ eks_managed_node_groups = {
 // an explicit rule — same-node pod traffic never hits security groups at
 // all, which is why this only broke for cross-node calls (e.g. ingress-nginx
 // reaching a frontend pod on another node), not for same-node kubelet checks.
+
 node_security_group_additional_rules = {
   ingress_self_all = {
     description = "Allow all traffic between nodes in this cluster (pod-to-pod on any port)"
-    protocol    = "-1"     # -1 = all protocols
+    protocol    = "-1"
     from_port   = 0
     to_port     = 0
     type        = "ingress"
-    self        = true     # "self" = traffic FROM this same security group
+    self        = true
+  }
+
+  # NEW: lets the EKS control plane reach metrics-server pods directly for
+  # the Metrics API aggregation layer. Not covered by the module's default
+  # webhook rules (which only open 443/4443/6443/8443/9443) since
+  # metrics-server serves on 10251 specifically.
+  ingress_cluster_metrics_server = {
+    description                   = "Allow EKS control plane to reach metrics-server for the Metrics API"
+    protocol                      = "tcp"
+    from_port                     = 10251
+    to_port                       = 10251
+    type                          = "ingress"
+    source_cluster_security_group = true   # module-provided shorthand for "source = the cluster's own control-plane security group"
   }
 }
 // EKS Access Entries: grants Kubernetes RBAC permissions to specific IAM principals.
@@ -101,6 +115,9 @@ cluster_addons = {
   aws-ebs-csi-driver = {
     most_recent              = true
     service_account_role_arn = aws_iam_role.ebs_csi_irsa.arn   # <-- was module.ebs_csi_irsa_role.iam_role_arn
+  }
+  metrics-server = {
+    most_recent = true   # no service_account_role_arn needed — this add-on requires no IAM permissions at all
   }
 }
 
