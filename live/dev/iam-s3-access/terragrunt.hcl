@@ -10,6 +10,15 @@ terraform {
 # hardcoding the bucket ARN by hand
 dependency "s3" {
   config_path = "../s3"
+
+# Placeholder used ONLY during plan/init/validate, when the real s3 output
+  # might not be resolvable yet (e.g. during run --all's early discovery pass).
+  # apply is deliberately excluded — it always requires the real value.
+  mock_outputs = {
+    bucket_arn = "arn:aws:s3:::mock-bucket-for-planning-only"
+  }
+  mock_outputs_allowed_terraform_commands = ["init", "validate", "plan"]
+
 }
 
 inputs = {
