@@ -26,6 +26,12 @@ provider "kubernetes" {
 }
 
 provider "helm" {
+  # Forces the provider to use a fixed, predictable folder for its repo
+  # index/cache instead of a default under AppData\Local\Temp, which is
+  # what was failing to resolve correctly on Windows.
+  repository_config_path = "${path.module}/.helm/repositories.yaml"
+  repository_cache        = "${path.module}/.helm/cache"
+
   kubernetes {
     host                   = var.cluster_endpoint
     cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
